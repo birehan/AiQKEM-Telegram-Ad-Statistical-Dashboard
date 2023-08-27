@@ -14,8 +14,8 @@ export default function Sidebar({ selectedNav, setSelectedNav }: props) {
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
       <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
         <div className="flex h-16 shrink-0 items-start flex-col mt-12 gap-2">
-          <h1 className="text-3xl font-bold text-[#464356]">Sedap</h1>
-          <p className="text-[#8a8c90]">Modern Admin Dashboard</p>
+          <h1 className="text-3xl font-bold text-[#464356]">AiQKEM</h1>
+          <p className="text-[#8a8c90]">Telegram Ads</p>
         </div>
         <nav className="flex flex-1 flex-col mt-4">
           <ul className="flex flex-1 flex-col gap-y-7">
