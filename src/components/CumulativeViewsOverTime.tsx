@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Plot from "react-plotly.js";
-import Post from "../../types/posts";
+import Post from "../types/posts";
+import { getViewsOverTime } from "../common/getStats";
+import PieChart from "./charts/PieChart";
+import AreaChart from "./charts/AreaChart";
+import BarChart from "./charts/BarChart";
 
 interface LineChartProps {
   data: Post[];
@@ -31,7 +34,6 @@ const CumulativeViewsOverTime: React.FC<LineChartProps> = ({ data }) => {
     const selectedCreative = event.target.value;
     setSelectedCreative(selectedCreative);
 
-    // Update available channels based on selected creative
     const availableChannels = new Set<string>();
     data.forEach((post) => {
       if (
@@ -45,7 +47,6 @@ const CumulativeViewsOverTime: React.FC<LineChartProps> = ({ data }) => {
     const updatedChannels = ["All", ...Array.from(availableChannels)];
     setChannels(updatedChannels);
 
-    // If the selected channel is still within the updated list, keep it; otherwise, reset to "All"
     setSelectedChannel(
       updatedChannels.includes(selectedChannel) ? selectedChannel : "All"
     );
@@ -55,7 +56,6 @@ const CumulativeViewsOverTime: React.FC<LineChartProps> = ({ data }) => {
     const selectedChannel = event.target.value;
     setSelectedChannel(selectedChannel);
 
-    // Update available creatives based on selected channel
     const availableCreatives = new Set<string>();
     data.forEach((post) => {
       if (
@@ -69,7 +69,6 @@ const CumulativeViewsOverTime: React.FC<LineChartProps> = ({ data }) => {
     const updatedCreatives = ["All", ...Array.from(availableCreatives)];
     setCreatives(updatedCreatives);
 
-    // If the selected creative is still within the updated list, keep it; otherwise, reset to "All"
     setSelectedCreative(
       updatedCreatives.includes(selectedCreative) ? selectedCreative : "All"
     );
@@ -87,63 +86,13 @@ const CumulativeViewsOverTime: React.FC<LineChartProps> = ({ data }) => {
     return selectedCreativeMatches && selectedChannelMatches;
   });
 
-  const timestampViewsMap = new Map<number, number>();
-  const firstTimestamp = Math.min(
-    ...filteredData.flatMap((post) => post.recorded_at_timestamps)
-  );
-  const lastTimestamp = Math.max(
-    ...filteredData.flatMap((post) => post.recorded_at_timestamps)
-  );
-  const timeStep = (lastTimestamp - firstTimestamp) / 4;
-
-  let viewsSum = 0;
-  let cumulativeViewsSum = 0;
-
-  for (let i = 0; i < 5; i++) {
-    const startTime = firstTimestamp + i * timeStep;
-    const endTime = startTime + timeStep;
-
-    filteredData.forEach((post) => {
-      post.recorded_at_timestamps.forEach((timestamp, index) => {
-        const views = parseInt(post.views_list[index], 10);
-        if (timestamp >= startTime && timestamp < endTime) {
-          viewsSum += views;
-          cumulativeViewsSum += views;
-        }
-      });
-    });
-
-    timestampViewsMap.set(startTime, cumulativeViewsSum);
-  }
-
-  const timestamps = Array.from(timestampViewsMap.keys());
-  const cumulativeViews = Array.from(timestampViewsMap.values());
-
-  const formattedTimestamps = timestamps.map((timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString(); // You can format the timestamp as you prefer
-  });
-
-  // ... The rest of your code remains unchanged ...
+  const { formattedTimestamps, cumulativeViews } =
+    getViewsOverTime(filteredData);
 
   return (
     <div className="mx-auto h-fit flex flex-col justify-center items-center gap-8 w-full">
       <h1 className="text-3xl font-bold">Views Trend Over Time</h1>
       <div className="mb-4 flex flex-row gap-4">
-        <div className="flex flex-row gap-4">
-          <h2 className="text-xl font-semibold mb-2">Select Campaign:</h2>
-          <select
-            value={selectedCreative}
-            onChange={handleCreativeSelect}
-            className="w-48 px-4 py-2 rounded-md bg-gray-200 text-gray-800"
-          >
-            {creatives.map((creative) => (
-              <option key={creative} value={creative}>
-                {creative}
-              </option>
-            ))}
-          </select>
-        </div>
         <div className="flex flex-row gap-4">
           <h2 className="text-xl font-semibold mb-2">Select Creative:</h2>
           <select
@@ -173,67 +122,21 @@ const CumulativeViewsOverTime: React.FC<LineChartProps> = ({ data }) => {
           </select>
         </div>
       </div>
-      {/* ... The rest of your code remains unchanged ... */}
       <div className="flex flex-col xl:flex-row gap-8 items-stretch justify-between w-full">
-        <div style={{ flex: 1 }}>
-          <Plot
-            style={{ flex: 1 }}
-            data={[
-              {
-                x: formattedTimestamps,
-                y: cumulativeViews,
-                fill: "tozeroy",
-                type: "scatter",
-              },
-            ]}
-            layout={{
-              title: "Views Trend Over Time (Area Chart)",
-              xaxis: { title: "Timestamp" },
-              yaxis: { title: "Cumulative Views" },
-              height: 400,
-            }}
-            config={{ responsive: true }}
-          />
-        </div>
-
-        {/* <div style={{ flex: 1 }}>
-          <Plot
-            style={{ flex: 1 }}
-            data={[
-              {
-                x: formattedTimestamps,
-                y: cumulativeViews,
-                mode: "lines",
-              },
-            ]}
-            layout={{
-              title: "Views Trend Over Time",
-              xaxis: { title: "Timestamp" },
-              yaxis: { title: "Cumulative Views" },
-              height: 400,
-            }}
-            config={{ responsive: true }}
-          />
-        </div> */}
-        <div style={{ flex: 1 }}>
-          <Plot
-            style={{ flex: 1 }}
-            data={[
-              {
-                x: formattedTimestamps,
-                y: cumulativeViews,
-                type: "bar",
-              },
-            ]}
-            layout={{
-              title: "Views Trend Over Time",
-              xaxis: { title: "Timestamp" },
-              yaxis: { title: "Cumulative Views" },
-              height: 400,
-            }}
-            config={{ responsive: true }}
-          />
-        </div>
+        <AreaChart
+          x={formattedTimestamps}
+          y={cumulativeViews}
+          title="Views Trend Over Time (Area Chart)"
+          xTitle="Timestamp"
+          yTitle="Views"
+        />
+        <BarChart
+          x={formattedTimestamps}
+          y={cumulativeViews}
+          title="Views Trend Over Time"
+          xTitle="Timestamp"
+          yTitle="Views"
+        />
       </div>
     </div>
   );

@@ -1,14 +1,11 @@
 import { useState } from "react";
-import Sidebar from "./components/Sidebar";
-import Navbar from "./components/Navbar";
-import SidebarDrawer from "./components/SidebarDrawer";
-import DashboardStat from "./components/DashboardStat";
-import ChangeViewsPerPost from "./components/charts/ChangeViewsPerPost";
+import Sidebar from "./components/nav_components/Sidebar";
+import Navbar from "./components/nav_components/Navbar";
+import SidebarDrawer from "./components/nav_components/SidebarDrawer";
 import { statData } from "./data/statData";
-import ChangeViewsOnChannelPerCreative from "./components/charts/ChangeViewsOnChannelPerCreative";
-import TotalViewsbyCreative from "./components/charts/TotalViewsbyCreative";
-import TotalViewsbyChannel from "./components/charts/TotalViewsbyChannel";
-import CumulativeViewsOverTime from "./components/charts/CumulativeViewsOverTime";
+import TotalViewsbyCreative from "./components/TotalViewsbyCreative";
+import TotalViewsbyChannel from "./components/TotalViewsbyChannel";
+import CumulativeViewsOverTime from "./components/CumulativeViewsOverTime";
 
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,9 +27,6 @@ const App = () => {
 
           <main className="py-10 main-content">
             <div className="mx-auto max-w-[90rem] flex flex-col gap-16">
-              {/* <DashboardStat /> */}
-              {/* <ChangeViewsPerPost data={statData[0]} /> */}
-              {/* <ChangeViewsOnChannelPerCreative posts={statData} /> */}
               <TotalViewsbyCreative data={statData} />
               <TotalViewsbyChannel data={statData} />
               <CumulativeViewsOverTime data={statData} />

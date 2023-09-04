@@ -1,4 +1,4 @@
-import { navigation } from "../data/navLinks";
+import { navigation } from "../../data/navLinks";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
