@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Post from "../types/posts";
 import { getViewsOverTime } from "../common/getStats";
-import PieChart from "./charts/PieChart";
 import AreaChart from "./charts/AreaChart";
 import BarChart from "./charts/BarChart";
 

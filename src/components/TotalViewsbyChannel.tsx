@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Post from "../types/posts";
-import { getChannelViewStat } from "../common/getStats";
+import { getAllChannelViewStat, getChannelViewStat } from "../common/getStats";
 import DataTableView from "./charts/DataTableView.js";
 import ShowTableToggle from "./ShowTableToogle";
 import BarChart from "./charts/BarChart";
@@ -13,6 +13,8 @@ interface BarChartProps {
 const TotalViewsbyChannel: React.FC<BarChartProps> = ({ data }) => {
   const [selectedCreative, setSelectedCreative] = useState<string>("All"); // Default to "All"
   const [showTable, setShowTable] = useState(false); // Add state to control table visibility
+  const [channelTitles, setChannelTitles] = useState<string[]>([]);
+  const [totalViews, setTotalViews] = useState<number[]>([]);
 
   const creativeNames: string[] = ["All"];
   data.forEach((post) => {
@@ -29,13 +31,25 @@ const TotalViewsbyChannel: React.FC<BarChartProps> = ({ data }) => {
           (post) => selectedCreative === post.posted_ad_id.post_creative_id.name
         );
 
-  const { channelTitles, totalViews } = getChannelViewStat(filteredData);
+  // const { channelTitles, totalViews } = getChannelViewStat(filteredData);
 
   const handleCreativeSelect = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setSelectedCreative(event.target.value);
   };
+
+  useEffect(() => {
+    let response = null;
+
+    if (showTable) {
+      response = getAllChannelViewStat(filteredData);
+    } else {
+      response = getChannelViewStat(filteredData);
+    }
+    setChannelTitles(response.channelTitles);
+    setTotalViews(response.totalViews);
+  }, [showTable]);
 
   return (
     <div className="mx-auto h-fit flex flex-col justify-center items-center gap-8 w-full">
