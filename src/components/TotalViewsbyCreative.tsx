@@ -48,7 +48,7 @@ const TotalViewsbyCreative: React.FC<BarChartProps> = ({ data }) => {
     }
     setCreativeNames(response.creativeNames);
     setTotalViews(response.totalViews);
-  }, [showTable]);
+  }, [showTable, filteredData]);
 
   return (
     <div className="mx-auto h-fit  flex flex-col justify-center items-center gap-8 w-full">
