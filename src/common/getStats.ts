@@ -1,61 +1,103 @@
 import Post from "../types/posts";
 
-export const getAllCreativeViewStat = (filteredData: Post[]) => {
-  const creativeViewsMap = new Map<string, number>();
+export const getCreativeViewStateTable = (filteredData: Post[]) => {
+  const creativeDataMap = new Map<
+    string,
+    { totalViews: number; totalPosts: number; postsDetails: any[] }
+  >();
 
   filteredData.forEach((post) => {
     const creativeName = post.posted_ad_id.post_creative_id.name;
     const views = post.views;
 
-    if (creativeViewsMap.has(creativeName)) {
-      creativeViewsMap.set(
-        creativeName,
-        creativeViewsMap.get(creativeName)! + views
-      );
+    if (creativeDataMap.has(creativeName)) {
+      const existingData = creativeDataMap.get(creativeName)!;
+      existingData.totalViews += views;
+      existingData.totalPosts += 1;
+      const curPost = {
+        title: post.posted_ad_id.channel_id.title,
+        views: post.views,
+        createdAt: post.createdAt,
+      };
+      existingData.postsDetails.push(curPost);
     } else {
-      creativeViewsMap.set(creativeName, views);
+      creativeDataMap.set(creativeName, {
+        totalViews: views,
+        totalPosts: 1,
+        postsDetails: [
+          {
+            title: post.posted_ad_id.channel_id.title,
+            views: post.views,
+            createdAt: post.createdAt,
+          },
+        ],
+      });
     }
   });
 
-  const sortedCreativeViews = Array.from(creativeViewsMap.entries()).sort(
-    (a, b) => b[1] - a[1]
+  const sortedCreativeData = Array.from(creativeDataMap.entries()).sort(
+    (a, b) => b[1].totalViews - a[1].totalViews
   );
 
-  const sortedCreativeNames = sortedCreativeViews.map(
-    ([creativeName]) => creativeName
-  );
-  const sortedTotalViews = sortedCreativeViews.map(([, views]) => views);
+  const result = sortedCreativeData.map(([creativeName, data]) => [
+    creativeName,
+    data.totalViews,
+    data.totalPosts,
+  ]);
 
-  return { creativeNames: sortedCreativeNames, totalViews: sortedTotalViews };
+  const postsDetails = sortedCreativeData.map(([, data]) => data.postsDetails);
+
+  return { result, postsDetails };
 };
 
-export const getAllChannelViewStat = (filteredData: Post[]) => {
-  const channelViewsMap = new Map<string, number>();
+export const getChannelViewStatTable = (filteredData: Post[]) => {
+  const channelDataMap = new Map<
+    string,
+    { totalViews: number; totalPosts: number; postsDetails: any[] }
+  >();
 
   filteredData.forEach((post) => {
     const channelTitle = post.posted_ad_id.channel_id.title;
     const views = post.views;
 
-    if (channelViewsMap.has(channelTitle)) {
-      channelViewsMap.set(
-        channelTitle,
-        channelViewsMap.get(channelTitle)! + views
-      );
+    if (channelDataMap.has(channelTitle)) {
+      const existingData = channelDataMap.get(channelTitle)!;
+      existingData.totalViews += views;
+      existingData.totalPosts += 1;
+      const curPost = {
+        title: post.posted_ad_id.post_creative_id.name,
+        views: post.views,
+        createdAt: post.createdAt,
+      };
+      existingData.postsDetails.push(curPost);
     } else {
-      channelViewsMap.set(channelTitle, views);
+      channelDataMap.set(channelTitle, {
+        totalViews: views,
+        totalPosts: 1,
+        postsDetails: [
+          {
+            title: post.posted_ad_id.post_creative_id.name,
+            views: post.views,
+            createdAt: post.createdAt,
+          },
+        ],
+      });
     }
   });
 
-  const sortedChannelViews = Array.from(channelViewsMap.entries()).sort(
-    (a, b) => b[1] - a[1]
+  const sortedChannelData = Array.from(channelDataMap.entries()).sort(
+    (a, b) => b[1].totalViews - a[1].totalViews
   );
 
-  const sortedChannelTitles = sortedChannelViews.map(
-    ([channelTitle]) => channelTitle
-  );
-  const sortedTotalViews = sortedChannelViews.map(([, views]) => views);
+  const result = sortedChannelData.map(([channelTitle, data]) => [
+    channelTitle,
+    data.totalViews,
+    data.totalPosts,
+  ]);
 
-  return { channelTitles: sortedChannelTitles, totalViews: sortedTotalViews };
+  const postsDetails = sortedChannelData.map(([, data]) => data.postsDetails);
+
+  return { result, postsDetails };
 };
 
 export const getCreativeViewStat = (filteredData: Post[]) => {

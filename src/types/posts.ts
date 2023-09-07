@@ -25,3 +25,10 @@ export default interface Post {
   createdAt: string;
   updatedAt: string;
 }
+
+
+// createdAt
+
+
+// total posts
+  // createdAt and latest view

@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Post from "../types/posts";
-import { getAllChannelViewStat, getChannelViewStat } from "../common/getStats";
-import DataTableView from "./charts/DataTableView.js";
+import {
+  getChannelViewStatTable,
+  getChannelViewStat,
+} from "../common/getStats";
 import ShowTableToggle from "./ShowTableToogle";
 import BarChart from "./charts/BarChart";
 import PieChart from "./charts/PieChart";
+import SampleTable from "./charts/SampleTable";
 
 interface BarChartProps {
   data: Post[];
@@ -15,6 +18,9 @@ const TotalViewsbyChannel: React.FC<BarChartProps> = ({ data }) => {
   const [showTable, setShowTable] = useState(false); // Add state to control table visibility
   const [channelTitles, setChannelTitles] = useState<string[]>([]);
   const [totalViews, setTotalViews] = useState<number[]>([]);
+  const [tableData, setTableData] = useState<any[]>([]);
+  const [filterdPosts, setFilterdPosts] = useState<any[]>([]);
+  // totalPosts
 
   const creativeNames: string[] = ["All"];
   data.forEach((post) => {
@@ -43,12 +49,15 @@ const TotalViewsbyChannel: React.FC<BarChartProps> = ({ data }) => {
     let response = null;
 
     if (showTable) {
-      response = getAllChannelViewStat(filteredData);
+      response = getChannelViewStatTable(filteredData);
+      const { result, postsDetails } = getChannelViewStatTable(filteredData);
+      setTableData(result);
+      setFilterdPosts(postsDetails);
     } else {
       response = getChannelViewStat(filteredData);
+      setChannelTitles(response.channelTitles);
+      setTotalViews(response.totalViews);
     }
-    setChannelTitles(response.channelTitles);
-    setTotalViews(response.totalViews);
   }, [showTable, filteredData]);
 
   return (
@@ -80,11 +89,13 @@ const TotalViewsbyChannel: React.FC<BarChartProps> = ({ data }) => {
         </div>
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-8 items-stretch justify-between w-full">
+      <div className="flex flex-col xl:flex-row gap-8 items-stretch justify-center w-full">
         {showTable ? (
-          <DataTableView
-            headers={["Channels", "Total Views"]}
-            cells={[channelTitles, totalViews]}
+          <SampleTable
+            headers={["Channels", "Total Views", "Total Posts"]}
+            cells={tableData}
+            itemsPost={filterdPosts}
+            postHeaders={["Creative", "Views", "Posted At"]}
           />
         ) : (
           <>

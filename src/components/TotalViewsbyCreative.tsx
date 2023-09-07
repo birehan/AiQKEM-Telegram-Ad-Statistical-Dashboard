@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import Post from "../types/posts";
 import BarChart from "./charts/BarChart";
 import PieChart from "./charts/PieChart";
-import DataTableView from "./charts/DataTableView.js";
 import ShowTableToggle from "./ShowTableToogle";
 import {
-  getAllCreativeViewStat,
+  getCreativeViewStateTable,
   getCreativeViewStat,
 } from "../common/getStats";
+import SampleTable from "./charts/SampleTable";
 
 interface BarChartProps {
   data: Post[];
@@ -18,6 +18,8 @@ const TotalViewsbyCreative: React.FC<BarChartProps> = ({ data }) => {
   const [showTable, setShowTable] = useState(false);
   const [creativeNames, setCreativeNames] = useState<string[]>([]);
   const [totalViews, setTotalViews] = useState<number[]>([]);
+  const [tableData, setTableData] = useState<any[]>([]);
+  const [filterdPosts, setFilterdPosts] = useState<any[]>([]);
 
   const channelTitles: string[] = ["All"];
   data.forEach((post) => {
@@ -42,12 +44,14 @@ const TotalViewsbyCreative: React.FC<BarChartProps> = ({ data }) => {
     let response = null;
 
     if (showTable) {
-      response = getAllCreativeViewStat(filteredData);
+      const { result, postsDetails } = getCreativeViewStateTable(filteredData);
+      setTableData(result);
+      setFilterdPosts(postsDetails);
     } else {
       response = getCreativeViewStat(filteredData);
+      setCreativeNames(response.creativeNames);
+      setTotalViews(response.totalViews);
     }
-    setCreativeNames(response.creativeNames);
-    setTotalViews(response.totalViews);
   }, [showTable, filteredData]);
 
   return (
@@ -81,9 +85,11 @@ const TotalViewsbyCreative: React.FC<BarChartProps> = ({ data }) => {
 
       <div className="flex flex-col xl:flex-row gap-8 items-stretch justify-center w-full">
         {showTable ? (
-          <DataTableView
-            headers={["Creative", "Total Views"]}
-            cells={[creativeNames, totalViews]}
+          <SampleTable
+            headers={["Creative", "Total Views", "Total Posts"]}
+            cells={tableData}
+            itemsPost={filterdPosts}
+            postHeaders={["Channel", "Views", "Posted At"]}
           />
         ) : (
           <>
